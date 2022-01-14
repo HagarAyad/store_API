@@ -61,7 +61,7 @@ get user by Id (require auth )
 
 #### Add product
 
-```http
+``` http
   POST /product
 ```
 
@@ -69,7 +69,7 @@ Request (body)
 | Property| Type | Description |
 | :-------- | :------- | :------------------------- |
 | `name` | `string` | **Required**. product name|
-| `password` | `number` | **Required**. product price|
+| `price` | `number` | **Required**. product price|
 
 #### GET ALL Products
 
