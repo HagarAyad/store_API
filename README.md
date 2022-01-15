@@ -11,7 +11,7 @@ you can also find API docs when run project locally on http://localhost:4000/api
 
 #### Create new user
 
-```http
+``` http
   POST /user
 ```
 
@@ -27,7 +27,7 @@ Request (body)
 
 get user access token to make authorized requests
 
-```http
+``` http
   POST /user/login
 ```
 
