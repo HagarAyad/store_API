@@ -4,10 +4,10 @@ import client from '../database';
 
 export type User = {
   id?: number;
-  user_name: string;
-  first_name: string;
-  last_name: string;
-  password: string;
+  user_name?: string;
+  first_name?: string;
+  last_name?: string;
+  password?: string;
 };
 
 const saltRounds = 10;
@@ -52,7 +52,7 @@ export class UserModel {
 
   async create(user: User): Promise<User> {
     try {
-      const { first_name, last_name, user_name, password } = user;
+      const { first_name, last_name, user_name, password = '' } = user;
       const conn = await client.connect();
       const sql = `INSERT INTO users(
         user_name, first_name,last_name, password)
@@ -73,12 +73,15 @@ export class UserModel {
       const result = await conn.query(sql, [user_name]);
       const user = result.rows[0];
       conn.release();
-      const { id, password: hashedPassword } = user;
-      const isValidPassword = await bcrypt.compare(
-        password,
-        `${hashedPassword}`,
-      );
-      return isValidPassword ? getUserToken(id) : '';
+      if (user) {
+        const { id, password: hashedPassword } = user;
+        const isValidPassword = await bcrypt.compare(
+          password,
+          `${hashedPassword}`,
+        );
+        return isValidPassword ? getUserToken(id) : '';
+      }
+      return '';
     } catch (error) {
       throw new Error('failed to check valid user');
     }
