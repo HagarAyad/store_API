@@ -3,9 +3,9 @@ import swaggerUi from 'swagger-ui-express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 //---
-import usersRoutes from './handlers/user';
-import ordersRoutes from './handlers/order';
-import productsRoutes from './handlers/product';
+import usersRoutes from './handlers/user/user';
+import ordersRoutes from './handlers/order/order';
+import productsRoutes from './handlers/product/product';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const swaggerDocument = require('../swagger.json');
 

@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
-import { OrderModel } from '../models/orders';
-import { verifyAuthToken } from '../middleware/authMiddleware';
+import { userIdValidator } from './order.validator';
+import { OrderModel } from '../../models/orders';
+import { verifyAuthToken, validateRequest } from '../../middleware';
 
 const orderModel = new OrderModel();
 
@@ -10,7 +11,7 @@ const createOrder = async (_req: Request, res: Response) => {
     await orderModel.createOrder(userId);
     res.sendStatus(201);
   } catch (error) {
-    res.sendStatus(400);
+    res.sendStatus(500);
   }
 };
 
@@ -22,7 +23,7 @@ const addProductToOrders = async (_req: Request, res: Response) => {
     await orderModel.addProduct(quantity, orderId, productId);
     res.sendStatus(201);
   } catch (error) {
-    res.sendStatus(400);
+    res.sendStatus(500);
   }
 };
 
@@ -32,13 +33,25 @@ const getUserOrders = async (_req: Request, res: Response) => {
     const orders = await orderModel.getUserOrders(userId);
     res.status(200).send(orders);
   } catch (error) {
-    res.sendStatus(400);
+    res.sendStatus(500);
   }
 };
 
 const ordersRoutes = (app: express.Application) => {
-  app.get('/user/:userId/order', verifyAuthToken, getUserOrders);
-  app.post('/user/:userId/order', verifyAuthToken, createOrder);
+  app.get(
+    '/user/:userId/order',
+    verifyAuthToken,
+    userIdValidator,
+    validateRequest,
+    getUserOrders,
+  );
+  app.post(
+    '/user/:userId/order',
+    verifyAuthToken,
+    userIdValidator,
+    validateRequest,
+    createOrder,
+  );
   app.post('/order/:id/products', verifyAuthToken, addProductToOrders);
 };
 

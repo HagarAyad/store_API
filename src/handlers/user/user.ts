@@ -1,13 +1,24 @@
 import express, { Request, Response } from 'express';
-import { verifyAuthToken } from '../middleware/authMiddleware';
-import { UserModel } from '../models/user';
+import {
+  userIdValidator,
+  user_nameValidator,
+  first_nameValidator,
+  last_nameValidator,
+  passwordValidator,
+} from './user.validator';
+import { validateRequest, verifyAuthToken } from '../../middleware';
+import { UserModel } from '../../models/user';
 
 const userModel = new UserModel();
 
 const createUser = async (req: Request, res: Response) => {
-  const reqBody = req.body;
-  const user = await userModel.create(reqBody);
-  res.status(200).send(user);
+  try {
+    const reqBody = req.body;
+    const user = await userModel.create(reqBody);
+    res.status(201).send(user);
+  } catch (error) {
+    res.sendStatus(500);
+  }
 };
 
 const loginUser = async (req: Request, res: Response) => {
@@ -18,6 +29,7 @@ const loginUser = async (req: Request, res: Response) => {
     if (userToken) res.status(200).send(userToken);
     else res.sendStatus(401);
   } catch (error) {
+    console.log('erro', error);
     res.sendStatus(401);
   }
 };
@@ -32,7 +44,7 @@ const showUser = async (req: Request, res: Response) => {
       res.sendStatus(404);
     }
   } catch (error) {
-    res.sendStatus(400);
+    res.sendStatus(500);
   }
 };
 
@@ -41,15 +53,35 @@ const indexUsers = async (req: Request, res: Response) => {
     const users = await userModel.index();
     res.status(200).send(users);
   } catch (error) {
-    res.sendStatus(400);
+    res.sendStatus(500);
   }
 };
 
 const usersRoutes = (app: express.Application) => {
-  app.post('/user', createUser);
-  app.post('/user/login', loginUser);
+  app.post(
+    '/user',
+    user_nameValidator,
+    first_nameValidator,
+    last_nameValidator,
+    passwordValidator,
+    validateRequest,
+    createUser,
+  );
+  app.post(
+    '/user/login',
+    user_nameValidator,
+    passwordValidator,
+    validateRequest,
+    loginUser,
+  );
   app.get('/user', verifyAuthToken, indexUsers);
-  app.get('/user/:id', verifyAuthToken, showUser);
+  app.get(
+    '/user/:id',
+    verifyAuthToken,
+    userIdValidator,
+    validateRequest,
+    showUser,
+  );
 };
 
 export default usersRoutes;

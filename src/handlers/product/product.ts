@@ -1,6 +1,11 @@
 import express, { Request, Response } from 'express';
-import { verifyAuthToken } from '../middleware/authMiddleware';
-import { ProductModel } from '../models/product';
+import {
+  productIdValidator,
+  product_nameValidator,
+  product_priceValidator,
+} from './product.validator';
+import { verifyAuthToken, validateRequest } from '../../middleware';
+import { ProductModel } from '../../models/product';
 
 const productModel = new ProductModel();
 
@@ -9,7 +14,7 @@ const indexProducts = async (req: Request, res: Response) => {
     const users = await productModel.index();
     res.status(200).send(users);
   } catch (error) {
-    res.sendStatus(400);
+    res.sendStatus(500);
   }
 };
 
@@ -23,7 +28,7 @@ const showProduct = async (req: Request, res: Response) => {
       res.sendStatus(404);
     }
   } catch (error) {
-    res.sendStatus(400);
+    res.sendStatus(500);
   }
 };
 
@@ -39,8 +44,15 @@ const addProduct = async (req: Request, res: Response) => {
 
 const productsRoutes = (app: express.Application) => {
   app.get('/product', indexProducts);
-  app.get('/product/:id', showProduct);
-  app.post('/product', verifyAuthToken, addProduct);
+  app.get('/product/:id', productIdValidator, validateRequest, showProduct);
+  app.post(
+    '/product',
+    verifyAuthToken,
+    product_nameValidator,
+    product_priceValidator,
+    validateRequest,
+    addProduct,
+  );
 };
 
 export default productsRoutes;
